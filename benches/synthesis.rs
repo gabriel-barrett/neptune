@@ -52,7 +52,7 @@ impl<A: Arity<Fr>> BenchCircuit<'_, A> {
             .map(|i| {
                 let fr = Fr::random(&mut rng);
                 fr_data[i] = fr;
-                AllocatedNum::alloc_infallible(cs.namespace(|| format!("data {}", i)), || fr)
+                AllocatedNum::alloc_infallible_strict(cs.namespace(|| format!("data {}", i)), fr)
             })
             .collect::<Vec<_>>();
         data

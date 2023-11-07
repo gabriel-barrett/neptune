@@ -49,9 +49,10 @@ impl<Scalar: PrimeField> Elt<Scalar> {
         match self {
             Self::Allocated(v) => Ok(v.clone()),
             Self::Num(num) => {
-                let v = AllocatedNum::alloc(cs.namespace(|| "allocate for Elt::Num"), || {
-                    num.get_value().ok_or(SynthesisError::AssignmentMissing)
-                })?;
+                let v = AllocatedNum::alloc_strict(
+                    cs.namespace(|| "allocate for Elt::Num"),
+                    num.get_value().unwrap_or(Scalar::ZERO),
+                )?;
 
                 if enforce {
                     cs.enforce(
@@ -114,10 +115,9 @@ impl<Scalar: PrimeField> Elt<Scalar> {
     ) -> Result<AllocatedNum<Scalar>, SynthesisError> {
         match self {
             Elt::Num(num) => {
-                let allocated = AllocatedNum::alloc(&mut cs.namespace(|| "squared num"), || {
-                    num.get_value()
-                        .ok_or(SynthesisError::AssignmentMissing)
-                        .map(|tmp| tmp * tmp)
+                let allocated = AllocatedNum::alloc_strict(&mut cs.namespace(|| "squared num"), {
+                    let tmp = num.get_value().unwrap_or(Scalar::ZERO);
+                    tmp * tmp
                 })?;
                 cs.enforce(
                     || "squaring constraint",
@@ -555,11 +555,11 @@ pub fn square_sum<CS: ConstraintSystem<Scalar>, Scalar: PrimeField>(
     elt: &Elt<Scalar>,
     enforce: bool,
 ) -> Result<AllocatedNum<Scalar>, SynthesisError> {
-    let res = AllocatedNum::alloc(cs.namespace(|| "squared sum"), || {
-        let mut tmp = elt.val().ok_or(SynthesisError::AssignmentMissing)?;
+    let res = AllocatedNum::alloc_strict(cs.namespace(|| "squared sum"), {
+        let mut tmp = elt.val().unwrap_or(Scalar::ZERO);
         tmp.add_assign(&to_add);
         tmp = tmp.square();
-        Ok(tmp)
+        tmp
     })?;
 
     if enforce {
@@ -583,17 +583,17 @@ pub fn mul_sum<CS: ConstraintSystem<Scalar>, Scalar: PrimeField>(
     post_add: Option<Scalar>,
     enforce: bool,
 ) -> Result<AllocatedNum<Scalar>, SynthesisError> {
-    let res = AllocatedNum::alloc(cs.namespace(|| "mul_sum"), || {
-        let mut tmp = b.val().ok_or(SynthesisError::AssignmentMissing)?;
+    let res = AllocatedNum::alloc_strict(cs.namespace(|| "mul_sum"), {
+        let mut tmp = b.val().unwrap_or(Scalar::ZERO);
         if let Some(x) = pre_add {
             tmp.add_assign(&x);
         }
-        tmp.mul_assign(&a.get_value().ok_or(SynthesisError::AssignmentMissing)?);
+        tmp.mul_assign(&a.get_value().unwrap_or(Scalar::ZERO));
         if let Some(x) = post_add {
             tmp.add_assign(&x);
         }
 
-        Ok(tmp)
+        tmp
     })?;
 
     if enforce {
@@ -645,12 +645,12 @@ pub fn mul_pre_sum<CS: ConstraintSystem<Scalar>, Scalar: PrimeField>(
     to_add: Scalar,
     enforce: bool,
 ) -> Result<AllocatedNum<Scalar>, SynthesisError> {
-    let res = AllocatedNum::alloc(cs.namespace(|| "mul_sum"), || {
-        let mut tmp = b.get_value().ok_or(SynthesisError::AssignmentMissing)?;
+    let res = AllocatedNum::alloc_strict(cs.namespace(|| "mul_sum"), {
+        let mut tmp = b.get_value().unwrap_or(Scalar::ZERO);
         tmp.add_assign(&to_add);
-        tmp.mul_assign(&a.get_value().ok_or(SynthesisError::AssignmentMissing)?);
+        tmp.mul_assign(&a.get_value().unwrap_or(Scalar::ZERO));
 
-        Ok(tmp)
+        tmp
     })?;
 
     if enforce {

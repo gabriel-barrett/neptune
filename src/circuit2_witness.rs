@@ -32,7 +32,7 @@ where
     assert!(cs.is_witness_generator());
     let result = poseidon_hash_witness_into_cs(cs, preimage, constants);
 
-    AllocatedNum::alloc(&mut cs.namespace(|| "result"), || Ok(result))
+    AllocatedNum::alloc_strict(&mut cs.namespace(|| "result"), result)
 }
 
 pub fn poseidon_hash_witness_into_cs<Scalar, A, CS>(
@@ -412,7 +412,7 @@ mod test {
                     .map(|i| {
                         let fr = Fr::random(&mut rng);
                         fr_data[i] = fr;
-                        AllocatedNum::alloc(cs.namespace(|| format!("data {}", i)), || Ok(fr))
+                        AllocatedNum::alloc_strict(cs.namespace(|| format!("data {}", i)), fr)
                             .unwrap()
                     })
                     .collect::<Vec<_>>()

@@ -106,7 +106,7 @@ impl<'a, F: PrimeField, A: Arity<F>, CS: 'a + ConstraintSystem<F>> SpongeTrait<'
     }
 
     fn make_elt(&self, val: F, ns: &mut Self::Acc) -> Self::Elt {
-        let allocated = AllocatedNum::alloc_infallible(ns, || val);
+        let allocated = AllocatedNum::alloc_infallible_strict(ns, val);
         Elt::Allocated(allocated)
     }
 
@@ -289,7 +289,7 @@ mod tests {
             let element = F::random(&mut *rng);
             elements.push(element);
             allocated_elements.push(Elt::Allocated(
-                AllocatedNum::alloc(&mut ns.namespace(|| format!("elt{}", i)), || Ok(element))
+                AllocatedNum::alloc_strict(&mut ns.namespace(|| format!("elt{}", i)), element)
                     .unwrap(),
             ));
         }
