@@ -5,7 +5,7 @@ version = "12.0.0"
 authors = ["porcuquine <porcuquine@gmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/lurk-lab/neptune"
+repository = "https://github.com/gabriel-barrett/neptune"
 rust-version = "1.66.1"
 
 [dependencies]
@@ -79,8 +79,8 @@ members = [
 
 # Dependencies that should be kept in sync through the whole workspace
 [workspace.dependencies]
-bellpepper-core = { git = "https://github.com/lurk-lab/bellpepper", branch = "dev", default-features = false }
-bellpepper = { git = "https://github.com/lurk-lab/bellpepper", branch = "dev", default-features = false }
+bellpepper-core = { git = "https://github.com/gabriel-barrett/bellpepper", branch = "gb/strict-alloc", default-features = false }
+bellpepper = { git = "https://github.com/gabriel-barrett/bellpepper", branch = "gb/strict-alloc", default-features = false }
 blake2s_simd = "1.0.1"
 blstrs = { git="https://github.com/lurk-lab/blstrs.git", branch="dev"}
 ff = "0.13.0"
